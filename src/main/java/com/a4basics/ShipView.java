@@ -6,6 +6,7 @@ import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.effect.Bloom;
 import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
+import javafx.scene.paint.Paint;
 
 import java.util.List;
 
@@ -37,7 +38,6 @@ public class ShipView extends StackPane implements ShipModelSubscriber {
     }
 
     public void draw() {
-        double start = System.nanoTime()*10e-5;
         gc.clearRect(0, 0, myCanvas.getWidth(), myCanvas.getHeight());
         model.ships.forEach(ship -> {
             if (iModel.selectedShips.contains(ship)) {
@@ -50,7 +50,13 @@ public class ShipView extends StackPane implements ShipModelSubscriber {
             gc.fillPolygon(ship.displayXs, ship.displayYs, ship.displayXs.length);
             gc.strokePolygon(ship.displayXs, ship.displayYs, ship.displayXs.length);
         });
-        System.out.println(System.nanoTime()*10e-5 - start);
+        if (iModel.box != null) {
+            Paint saveStroke = gc.getStroke();
+            Paint savePaint = gc.getFill();
+            gc.setFill(Color.rgb(255, 186, 3, 0.5));
+            gc.fillRect(iModel.box.x, iModel.box.y, iModel.box.width, iModel.box.height);
+            gc.setFill(savePaint);
+        }
     }
 
     @Override

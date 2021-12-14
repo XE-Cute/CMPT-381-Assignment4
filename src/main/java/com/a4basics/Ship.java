@@ -93,4 +93,10 @@ public class Ship {
     private double rotateY(double x, double y, double thetaR) {
         return Math.sin(thetaR) * x + Math.cos(thetaR) * y;
     }
+
+    public boolean isContained(SelectionRectangle rect) {
+        if (rect.x < translateX && translateX < rect.x+ rect.width)
+            return rect.y < translateY && translateY < rect.y + rect.height;
+        return false;
+    }
 }

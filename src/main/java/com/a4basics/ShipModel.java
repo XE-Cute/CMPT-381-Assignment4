@@ -28,6 +28,7 @@ public class ShipModel {
         notifySubscribers();
     }
 
+
     public void addSubscriber (ShipModelSubscriber aSub) {
         subscribers.add(aSub);
     }

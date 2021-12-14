@@ -14,7 +14,7 @@ public class ShipController {
     double dX, dY;
 
     protected enum State {
-        READY, DRAGGING
+        READY, DRAGGING, SELECTION
     }
 
     protected State currentState;
@@ -45,7 +45,8 @@ public class ShipController {
                     if (event.isControlDown() && iModel.selectedShips.contains(hit.get()))
                         iModel.removeSelected(hit.get());
                     else
-                        iModel.addSelected(hit.get());
+                        if (!iModel.selectedShips.contains(hit.get()))
+                            iModel.addSelected(hit.get());
                     currentState = State.DRAGGING;
                 } else {
                     // on background - is Shift down?
@@ -57,8 +58,10 @@ public class ShipController {
                         currentState = State.DRAGGING;
                     } else {
                         // clear selection
-                        iModel.clearSelection();
-                        currentState = State.READY;
+                        if (!event.isControlDown())
+                            iModel.clearSelection();
+                        iModel.box = new SelectionRectangle(x, y, 0, 0);
+                        currentState = State.SELECTION;
                     }
                 }
             }
@@ -73,12 +76,25 @@ public class ShipController {
         switch (currentState) {
            case DRAGGING -> iModel.selectedShips.forEach(e ->
                    model.moveShip(e, dX, dY));
+            case SELECTION ->
+                iModel.drawSelection(x, y);
         }
     }
 
     public void handleReleased(double x, double y, MouseEvent event) {
         switch (currentState) {
-            case DRAGGING -> {
+            case DRAGGING ->
+                currentState = State.READY;
+            case SELECTION -> {
+                model.ships.forEach(ship -> {
+                    if (ship.isContained(iModel.box)) {
+                        if (iModel.selectedShips.contains(ship))
+                            iModel.removeSelected(ship);
+                        else
+                            iModel.selectedShips.add(ship);
+                    }
+                });
+                iModel.clearSelectionRectangle();
                 currentState = State.READY;
             }
         }
