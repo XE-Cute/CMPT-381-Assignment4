@@ -37,7 +37,7 @@ public class ShipController {
         switch (currentState) {
             case READY -> {
                 // context: on a ship?
-                Optional<Ship> hit = model.detectHit(x, y);
+                Optional<Groupable> hit = model.detectHit(x, y);
                 if (hit.isPresent()) {
                     // on ship, so select
                     if (!event.isControlDown() && !iModel.selectedShips.contains(hit.get()))

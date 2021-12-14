@@ -4,7 +4,7 @@ import java.util.ArrayList;
 
 public class InteractionModel {
     ArrayList<ShipModelSubscriber> subscribers;
-    ArrayList<Ship> selectedShips;
+    ArrayList<Groupable> selectedShips;
     SelectionRectangle box;
 
 
@@ -19,12 +19,12 @@ public class InteractionModel {
         notifySubscribers();
     }
 
-    public void addSelected(Ship newSelection) {
+    public void addSelected(Groupable newSelection) {
         selectedShips.add(newSelection);
         notifySubscribers();
     }
 
-    public void removeSelected(Ship newSelection){
+    public void removeSelected(Groupable newSelection){
         selectedShips.remove(newSelection);
         notifySubscribers();
     }

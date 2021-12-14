@@ -8,7 +8,7 @@ import javafx.scene.paint.Color;
 
 import java.util.stream.DoubleStream;
 
-public class Ship {
+public class Ship implements Groupable{
     double translateX, translateY;
     double[] xs = {0,20,0,-20,0};
     double[] ys = {24,-20,-12,-20,24};

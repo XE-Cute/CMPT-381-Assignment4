@@ -47,11 +47,10 @@ public class ShipView extends StackPane implements ShipModelSubscriber {
                 gc.setStroke(Color.YELLOW);
                 gc.setFill(Color.CORAL);
             }
-            gc.fillPolygon(ship.displayXs, ship.displayYs, ship.displayXs.length);
-            gc.strokePolygon(ship.displayXs, ship.displayYs, ship.displayXs.length);
+            gc.fillPolygon(((Ship)ship).displayXs, ((Ship)ship).displayYs, ((Ship)ship).displayXs.length);
+            gc.strokePolygon(((Ship)ship).displayXs, ((Ship)ship).displayYs, ((Ship)ship).displayXs.length);
         });
         if (iModel.box != null) {
-            Paint saveStroke = gc.getStroke();
             Paint savePaint = gc.getFill();
             gc.setFill(Color.rgb(255, 186, 3, 0.5));
             gc.fillRect(iModel.box.x, iModel.box.y, iModel.box.width, iModel.box.height);
