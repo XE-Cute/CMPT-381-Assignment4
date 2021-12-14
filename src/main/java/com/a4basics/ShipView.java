@@ -40,7 +40,7 @@ public class ShipView extends StackPane implements ShipModelSubscriber {
         double start = System.nanoTime()*10e-5;
         gc.clearRect(0, 0, myCanvas.getWidth(), myCanvas.getHeight());
         model.ships.forEach(ship -> {
-            if (iModel.selectedShip == ship) {
+            if (iModel.selectedShips.contains(ship)) {
                 gc.setFill(Color.YELLOW);
                 gc.setStroke(Color.CORAL);
             } else {

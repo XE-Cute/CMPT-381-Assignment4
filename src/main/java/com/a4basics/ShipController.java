@@ -40,14 +40,20 @@ public class ShipController {
                 Optional<Ship> hit = model.detectHit(x, y);
                 if (hit.isPresent()) {
                     // on ship, so select
-                    iModel.setSelected(hit.get());
+                    if (!event.isControlDown() && !iModel.selectedShips.contains(hit.get()))
+                        iModel.clearSelection();
+                    if (event.isControlDown() && iModel.selectedShips.contains(hit.get()))
+                        iModel.removeSelected(hit.get());
+                    else
+                        iModel.addSelected(hit.get());
                     currentState = State.DRAGGING;
                 } else {
                     // on background - is Shift down?
                     if (event.isShiftDown()) {
                         // create ship
                         Ship newShip = model.createShip(x, y);
-                        iModel.setSelected(newShip);
+                        iModel.clearSelection();
+                        iModel.addSelected(newShip);
                         currentState = State.DRAGGING;
                     } else {
                         // clear selection
@@ -65,7 +71,8 @@ public class ShipController {
         prevX = x;
         prevY = y;
         switch (currentState) {
-           case DRAGGING -> model.moveShip(iModel.selectedShip, dX, dY);
+           case DRAGGING -> iModel.selectedShips.forEach(e ->
+                   model.moveShip(e, dX, dY));
         }
     }
 

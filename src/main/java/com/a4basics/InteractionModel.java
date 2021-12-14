@@ -4,19 +4,25 @@ import java.util.ArrayList;
 
 public class InteractionModel {
     ArrayList<ShipModelSubscriber> subscribers;
-    Ship selectedShip;
+    ArrayList<Ship> selectedShips;
 
     public InteractionModel() {
         subscribers = new ArrayList<>();
+        selectedShips = new ArrayList<>();
     }
 
     public void clearSelection() {
-        selectedShip = null;
+        selectedShips.clear();
         notifySubscribers();
     }
 
-    public void setSelected(Ship newSelection) {
-        selectedShip = newSelection;
+    public void addSelected(Ship newSelection) {
+        selectedShips.add(newSelection);
+        notifySubscribers();
+    }
+
+    public void removeSelected(Ship newSelection){
+        selectedShips.remove(newSelection);
         notifySubscribers();
     }
 
