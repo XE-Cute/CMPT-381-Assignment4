@@ -18,6 +18,8 @@ public class Ship implements Groupable{
     PixelReader reader;
     double clickX, clickY;
 
+    ShipGroup group;
+
 
     public Ship(double newX, double newY) {
         Canvas shipCanvas;

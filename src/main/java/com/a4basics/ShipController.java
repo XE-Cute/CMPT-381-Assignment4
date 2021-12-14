@@ -5,6 +5,8 @@ import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 
+import java.util.ArrayList;
+import java.util.ConcurrentModificationException;
 import java.util.Optional;
 
 public class ShipController {
@@ -45,8 +47,13 @@ public class ShipController {
                     if (event.isControlDown() && iModel.selectedShips.contains(hit.get()))
                         iModel.removeSelected(hit.get());
                     else
-                        if (!iModel.selectedShips.contains(hit.get()))
-                            iModel.addSelected(hit.get());
+                        if (!iModel.selectedShips.contains(hit.get())) {
+                            try{
+                                ((Ship)hit.get()).group.ships.forEach(ship -> iModel.addSelected(ship));
+                            } catch (NullPointerException e) {
+                                iModel.addSelected(hit.get());
+                            }
+                        }
                     currentState = State.DRAGGING;
                 } else {
                     // on background - is Shift down?
@@ -91,9 +98,19 @@ public class ShipController {
                         if (iModel.selectedShips.contains(ship))
                             iModel.removeSelected(ship);
                         else
-                            iModel.selectedShips.add(ship);
+                            iModel.addSelected(ship);
                     }
                 });
+                try {
+                    iModel.selectedShips.forEach(ship -> {
+                        if (((Ship) ship).group != null)
+                            ((Ship)ship).group.ships.forEach(s -> {
+                                if (!iModel.selectedShips.contains(s))
+                                    iModel.addSelected(s);
+                            });
+                    });
+                }
+                catch (NullPointerException | ConcurrentModificationException ignored){}
                 iModel.clearSelectionRectangle();
                 currentState = State.READY;
             }
@@ -102,5 +119,11 @@ public class ShipController {
 
     public void handleKeyPressed(KeyEvent keyEvent) {
         System.out.println(keyEvent.getCode());
+        if (keyEvent.getCode().equals(KeyCode.G))
+            if (iModel.selectedShips.size() > 1) {
+                ShipGroup temp = new ShipGroup(new ArrayList<>(iModel.selectedShips));
+                iModel.selectedShips.forEach(ship -> ((Ship)ship).group = temp);
+                model.shipGroup.addToGroup(temp);
+            }
     }
 }

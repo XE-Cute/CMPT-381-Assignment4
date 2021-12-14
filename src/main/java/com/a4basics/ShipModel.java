@@ -4,12 +4,14 @@ import java.util.ArrayList;
 import java.util.Optional;
 
 public class ShipModel {
+    public ShipGroup shipGroup;
     public ArrayList<Groupable> ships;
     ArrayList<ShipModelSubscriber> subscribers;
 
     public ShipModel() {
         subscribers = new ArrayList<>();
         ships = new ArrayList<>();
+        shipGroup = new ShipGroup();
     }
 
     public Ship createShip(double x, double y) {
