@@ -31,6 +31,9 @@ public class ShipModel {
 
         notifySubscribers();
     }
+    public void updateModel(){
+        notifySubscribers();
+    }
 
 
     public void addSubscriber (ShipModelSubscriber aSub) {

@@ -11,6 +11,8 @@ public class ShipController {
     ShipModel model;
     double prevX, prevY;
     double dX, dY;
+    ShipClipboard clipboard;
+    Groupable copy = null;
 
     protected enum State {
         READY, DRAGGING, SELECTION
@@ -20,6 +22,7 @@ public class ShipController {
 
     public ShipController() {
         currentState = State.READY;
+        clipboard = new ShipClipboard();
     }
 
     public void setInteractionModel(InteractionModel newModel) {
@@ -95,11 +98,11 @@ public class ShipController {
         prevX = x;
         prevY = y;
         switch (currentState) {
-           case DRAGGING -> {
-               iModel.selectedShips.forEach(e ->
-                       model.moveShip(e, dX, dY));
-               model.shipGroups.group.forEach(Groupable::setBoxSize);
-           }
+            case DRAGGING -> {
+                iModel.selectedShips.forEach(e ->
+                        model.moveShip(e, dX, dY));
+                model.shipGroups.group.forEach(Groupable::setBoxSize);
+            }
             case SELECTION -> {
                 iModel.drawSelection(x, y);
                 iModel.drawGroupBox();
@@ -109,8 +112,7 @@ public class ShipController {
 
     public void handleReleased(double x, double y, MouseEvent event) {
         switch (currentState) {
-            case DRAGGING ->
-                currentState = State.READY;
+            case DRAGGING -> currentState = State.READY;
             case SELECTION -> {
                 model.shipGroups.ships.forEach(ship -> {
                     if (ship.isContained(iModel.box)) {
@@ -143,6 +145,8 @@ public class ShipController {
 
     public void handleKeyPressed(KeyEvent keyEvent) {
         System.out.println(keyEvent.getCode());
+
+        // G -> Group
         if (keyEvent.getCode().equals(KeyCode.G))
             if (iModel.selectedShips.size() > 1) {
                 ShipGroup temp = new ShipGroup(new ArrayList<>(iModel.selectedShips));
@@ -153,7 +157,7 @@ public class ShipController {
                         if (ship.getParentGroup() != null)
                             groups.add(ship.getParentGroup());
                 });
-                ArrayList<Groupable>tempGroup = new ArrayList<>(temp.group);
+                ArrayList<Groupable> tempGroup = new ArrayList<>(temp.group);
                 tempGroup.forEach(g -> {
                     if (g.getParentGroup() != null)
                         temp.group.remove(g);
@@ -175,6 +179,7 @@ public class ShipController {
                 iModel.drawGroupBox();
             }
 
+        // U -> Ungroup
         if (keyEvent.getCode().equals(KeyCode.U)) {
             if (iModel.selectedShips.size() > 1) {
                 Groupable iterator = iModel.selectedShips.get(0);
@@ -189,6 +194,54 @@ public class ShipController {
                 });
                 model.shipGroups.group.forEach(Groupable::setBoxSize);
                 iModel.drawGroupBox();
+            }
+        }
+
+        if (keyEvent.isControlDown()) {
+            switch (keyEvent.getCode()) {
+                // Ctrl + X -> Cut
+                case X -> {
+                    Groupable shipElement = iModel.selectedShips.get(0);
+                    Groupable iterator;
+                    if (shipElement.getParentGroup() != null) {
+                        iterator = shipElement;
+                        while (iterator.getParentGroup() != null)
+                            iterator = iterator.getParentGroup();
+                        shipElement = iterator;
+                    }
+                    model.shipGroups.group.remove(shipElement);
+                    if (shipElement instanceof Ship)
+                        model.shipGroups.ships.remove(shipElement);
+                    else
+                        model.shipGroups.ships.removeAll(((ShipGroup)shipElement).ships);
+                    model.updateModel();
+                    clipboard.addToClipboard(shipElement);
+                }
+                // Ctrl + C -> Copy
+                case C -> {
+                    // TODO: optimize for multiple non group selection
+                    Groupable shipElement = iModel.selectedShips.get(0);
+                    Groupable iterator;
+                    if (shipElement.getParentGroup() != null) {
+                        iterator = shipElement;
+                        while (iterator.getParentGroup() != null)
+                            iterator = iterator.getParentGroup();
+                        shipElement = iterator;
+                    }
+                    clipboard.addToClipboard(shipElement);
+                }
+                // Ctrl + V -> Paste
+                case V -> {
+                    copy = clipboard.copy();
+                    if (copy != null) {
+                        model.shipGroups.group.add(copy);
+                        if (copy instanceof Ship)
+                            model.shipGroups.ships.add(copy);
+                        else
+                            model.shipGroups.ships.addAll(((ShipGroup) copy).ships);
+                        model.updateModel();
+                    }
+                }
             }
         }
     }
