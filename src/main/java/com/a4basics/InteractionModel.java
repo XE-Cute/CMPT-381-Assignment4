@@ -28,6 +28,9 @@ public class InteractionModel {
         selectedShips.remove(newSelection);
         notifySubscribers();
     }
+    public void drawGroupBox(){
+        notifySubscribers();
+    }
 
     public void drawSelection(double newX, double newY){
         if (box.originX < newX)

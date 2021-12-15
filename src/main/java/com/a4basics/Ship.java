@@ -18,7 +18,7 @@ public class Ship implements Groupable{
     PixelReader reader;
     double clickX, clickY;
 
-    ShipGroup group;
+    ShipGroup parentGroup;
 
 
     public Ship(double newX, double newY) {
@@ -101,4 +101,11 @@ public class Ship implements Groupable{
             return rect.y < translateY && translateY < rect.y + rect.height;
         return false;
     }
+    public void updateParentGroup(ShipGroup g){
+        parentGroup = g;
+    }
+    public ShipGroup getParentGroup(){
+        return parentGroup;
+    }
+    public void setBoxSize(){}
 }

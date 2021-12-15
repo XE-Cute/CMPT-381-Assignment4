@@ -1,14 +1,10 @@
 package com.a4basics;
 
-import javafx.animation.AnimationTimer;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
-import javafx.scene.effect.Bloom;
 import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.Paint;
-
-import java.util.List;
 
 public class ShipView extends StackPane implements ShipModelSubscriber {
     Canvas myCanvas;
@@ -39,7 +35,7 @@ public class ShipView extends StackPane implements ShipModelSubscriber {
 
     public void draw() {
         gc.clearRect(0, 0, myCanvas.getWidth(), myCanvas.getHeight());
-        model.ships.forEach(ship -> {
+        model.shipGroups.ships.forEach(ship -> {
             if (iModel.selectedShips.contains(ship)) {
                 gc.setFill(Color.YELLOW);
                 gc.setStroke(Color.CORAL);
@@ -56,8 +52,17 @@ public class ShipView extends StackPane implements ShipModelSubscriber {
             gc.fillRect(iModel.box.x, iModel.box.y, iModel.box.width, iModel.box.height);
             gc.setFill(savePaint);
         }
-    }
+        model.shipGroups.group.forEach(ships -> {
+            if (ships instanceof ShipGroup s && s.isSelected) {
+                SelectionRectangle rect = s.outline;
+                Paint saveStroke = gc.getStroke();
+                gc.setStroke(Color.WHITE);
+                gc.strokeRect(rect.x, rect.y, rect.width, rect.height);
+                gc.setStroke(saveStroke);
+            }
+        });
 
+    }
     @Override
     public void modelChanged() {
         draw();
