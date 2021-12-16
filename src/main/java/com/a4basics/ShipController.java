@@ -42,8 +42,18 @@ public class ShipController {
                 Optional<Groupable> hit = model.detectHit(x, y);
                 if (hit.isPresent()) {
                     // on ship, so select
-                    if (!event.isControlDown() && !iModel.selectedShips.contains(hit.get()))
+                    if (!event.isControlDown() && !iModel.selectedShips.contains(hit.get())) {
+                        iModel.selectedShips.forEach(ship -> {
+                            if (ship.getParentGroup() != null) {
+                                ShipGroup iterator = ship.getParentGroup();
+                                while(iterator != null) {
+                                    iterator.isSelected = false;
+                                    iterator = iterator.getParentGroup();
+                                }
+                            }
+                        });
                         iModel.clearSelection();
+                    }
                     if (event.isControlDown() && iModel.selectedShips.contains(hit.get()))
                         iModel.removeSelected(hit.get());
                     else {
@@ -63,7 +73,8 @@ public class ShipController {
                         iModel.drawGroupBox();
                     }
                     currentState = State.DRAGGING;
-                } else {
+                }
+                else {
                     iModel.selectedShips.forEach(s -> {
                         if (s.getParentGroup() != null) {
                             ShipGroup iterator = s.getParentGroup();
@@ -165,6 +176,7 @@ public class ShipController {
                 temp.group.addAll(groups);
                 temp.ships.remove(null);
                 groups.forEach(g -> {
+                    g.isSelected = false;
                     model.shipGroups.group.remove(g);
                     temp.ships.remove(g);
                     iModel.selectedShips.remove(g);
@@ -186,11 +198,14 @@ public class ShipController {
                 while (iterator.getParentGroup() != null)
                     iterator = iterator.getParentGroup();
                 ArrayList<Groupable> groups = ((ShipGroup) iterator).group;
+                ((ShipGroup) iterator).isSelected = false;
                 model.shipGroups.group.remove(iterator);
                 groups.forEach(g -> {
                     g.updateParentGroup(null);
-                    if (g instanceof ShipGroup)
+                    if (g instanceof ShipGroup) {
+                        ((ShipGroup) g).isSelected = true;
                         model.shipGroups.group.add(g);
+                    }
                 });
                 model.shipGroups.group.forEach(Groupable::setBoxSize);
                 iModel.drawGroupBox();
@@ -219,16 +234,26 @@ public class ShipController {
                 }
                 // Ctrl + C -> Copy
                 case C -> {
-                    // TODO: optimize for multiple non group selection
-                    Groupable shipElement = iModel.selectedShips.get(0);
-                    Groupable iterator;
-                    if (shipElement.getParentGroup() != null) {
-                        iterator = shipElement;
-                        while (iterator.getParentGroup() != null)
-                            iterator = iterator.getParentGroup();
-                        shipElement = iterator;
-                    }
-                    clipboard.addToClipboard(shipElement);
+                    ShipGroup tempGroup = new ShipGroup();
+                    iModel.selectedShips.forEach(ship -> {
+                        Groupable shipElement = ship;
+                        Groupable iterator;
+                        if (shipElement.getParentGroup() != null) {
+                            iterator = shipElement;
+                            while (iterator.getParentGroup() != null)
+                                iterator = iterator.getParentGroup();
+                            shipElement = iterator;
+                        }
+                        tempGroup.group.add(shipElement);
+                        if (shipElement instanceof ShipGroup s) {
+                            s.ships.forEach(sh -> {
+                                if (!tempGroup.ships.contains(sh))
+                                    tempGroup.ships.add(sh);
+                            });
+                        }
+                    });
+
+                    clipboard.addToClipboard(tempGroup);
                 }
                 // Ctrl + V -> Paste
                 case V -> {
