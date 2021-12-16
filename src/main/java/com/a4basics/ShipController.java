@@ -43,6 +43,15 @@ public class ShipController {
                 if (hit.isPresent()) {
                     // on ship, so select
                     if (!event.isControlDown() && !iModel.selectedShips.contains(hit.get()))
+                        iModel.selectedShips.forEach(ship -> {
+                            if (ship.getParentGroup() != null) {
+                                ShipGroup iterator = ship.getParentGroup();
+                                while(iterator != null) {
+                                    iterator.isSelected = false;
+                                    iterator = iterator.getParentGroup();
+                                }
+                            }
+                        });
                         iModel.clearSelection();
                     if (event.isControlDown() && iModel.selectedShips.contains(hit.get()))
                         iModel.removeSelected(hit.get());
