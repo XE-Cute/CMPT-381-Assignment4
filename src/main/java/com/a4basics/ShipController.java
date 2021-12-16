@@ -176,7 +176,7 @@ public class ShipController {
                 temp.group.addAll(groups);
                 temp.ships.remove(null);
                 groups.forEach(g -> {
-                    g.isSelected = false;
+
                     model.shipGroups.group.remove(g);
                     temp.ships.remove(g);
                     iModel.selectedShips.remove(g);
